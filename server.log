@@ -1,0 +1,12 @@
+
+> qalb-e-saleem@0.1.0 start
+> next start
+
+  ▲ Next.js 14.2.3
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 1362ms
+Fetching Verse: https://api.quran.com/api/v4/verses/by_key/2:286?language=en&fields=text_uthmani_simple&translations=20,97
+Fetching Verse: https://api.quran.com/api/v4/verses/by_key/94:6?language=en&fields=text_uthmani_simple&translations=20,97
+Fetching Verse: https://api.quran.com/api/v4/verses/by_key/3:139?language=en&fields=text_uthmani_simple&translations=20,97
