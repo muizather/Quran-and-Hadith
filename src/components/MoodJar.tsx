@@ -17,16 +17,19 @@ export function MoodJar() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [content, setContent] = useState<MoodContent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleMoodClick = async (mood: string) => {
     setSelectedMood(mood);
     setLoading(true);
+    setError(null);
     setContent([]);
     try {
       const data = await getMoodContent(mood);
       setContent(data);
-    } catch (error) {
-      console.error("Failed to fetch mood content", error);
+    } catch (err: any) {
+      console.error("Failed to fetch mood content", err);
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -57,7 +60,14 @@ export function MoodJar() {
           </div>
         )}
 
-        {!loading && content.length > 0 && (
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4 text-center">
+             <p className="font-semibold">Error</p>
+             <p>{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && content.length > 0 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <h3 className="text-xl font-semibold mb-4">Verses for {selectedMood}</h3>
             <div className="grid gap-6">
@@ -75,7 +85,7 @@ export function MoodJar() {
           </div>
         )}
 
-        {!loading && selectedMood && content.length === 0 && (
+        {!loading && !error && selectedMood && content.length === 0 && (
            <div className="text-center text-gray-500">
              No content found. Please try again or check your connection.
            </div>

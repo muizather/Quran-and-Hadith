@@ -3,6 +3,9 @@
 import { getQuranReferences } from '../services/llm';
 import { fetchVerse } from '../services/api';
 
+// Set max duration to 60 seconds (Vercel Pro/Hobby limits apply, but this helps)
+// Note: Moved maxDuration to page/layout config as per Next.js requirements for Server Actions.
+
 export interface MoodContent {
   surah: number;
   ayah: number;
@@ -18,8 +21,15 @@ export interface MoodContent {
  * 2. Fetches verses in parallel.
  */
 export async function getMoodContent(mood: string): Promise<MoodContent[]> {
+  console.log(`[Server Action] getMoodContent called for mood: ${mood}`);
+
   try {
     const references = await getQuranReferences(mood);
+
+    if (!references || references.length === 0) {
+        console.warn("[Server Action] No references returned from LLM.");
+        return [];
+    }
 
     // Fetch all verses in parallel
     const versePromises = references.map(async (ref) => {
@@ -39,9 +49,14 @@ export async function getMoodContent(mood: string): Promise<MoodContent[]> {
     const verses = await Promise.all(versePromises);
 
     // Filter out any failed fetches (nulls) and return valid content
-    return verses.filter((v): v is MoodContent => v !== null);
-  } catch (error) {
-    console.error("Error in getMoodContent:", error);
-    return [];
+    const validVerses = verses.filter((v): v is MoodContent => v !== null);
+
+    console.log(`[Server Action] Returning ${validVerses.length} verses.`);
+    return validVerses;
+
+  } catch (error: any) {
+    console.error("[Server Action] Error in getMoodContent:", error);
+    // Rethrow error so UI can display it
+    throw new Error(error.message || "Failed to fetch content");
   }
 }
