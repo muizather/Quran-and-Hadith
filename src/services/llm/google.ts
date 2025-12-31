@@ -12,10 +12,25 @@ export class GoogleProvider implements LLMProvider {
   async getReferences(mood: string): Promise<QuranReference[]> {
     try {
       // Use gemini-2.5-flash as found in the available models list
-      const model = this.client.getGenerativeModel({ model: "gemini-2.5-flash" });
+      // Increase temperature to 1.0 to encourage variety in verse selection
+      const model = this.client.getGenerativeModel({
+          model: "gemini-2.5-flash",
+          generationConfig: {
+            temperature: 1.0,
+            topP: 0.95,
+          }
+      });
+
+      // Add a random seed instruction to the prompt to force diversity
+      const aspects = ["patience", "mercy", "strength", "hope", "forgiveness", "nature", "history", "prayer"];
+      const randomAspect = aspects[Math.floor(Math.random() * aspects.length)];
 
       const prompt = `You are a helpful Islamic assistant. A user is feeling "${mood}".
       Provide exactly 3 comforting or relevant Quran verses.
+
+      IMPORTANT: Try to be diverse. Do not always choose the most common verses.
+      Consider verses related to: ${randomAspect}.
+
       Return ONLY a JSON array of objects with "surah" (number) and "ayah" (number).
       Do not include any explanation or markdown formatting.
       Example: [{"surah": 2, "ayah": 153}, {"surah": 94, "ayah": 5}, {"surah": 13, "ayah": 28}]`;
