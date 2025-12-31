@@ -7,10 +7,8 @@ export class GoogleProvider implements LLMProvider {
 
   // List of models to try in order of preference/quota availability
   private models = [
-    "gemini-2.0-flash-lite-preview-02-05", // Try Lite preview first
-    "gemini-flash-latest",                  // Try generic latest alias
-    "gemini-2.0-flash",                     // Try specific 2.0
-    "gemini-2.5-flash"                      // Try 2.5 (limited quota) as last resort
+    "gemini-2.5-flash", // Preferred model
+    "gemma-3-12b-it"    // Fallback with higher rate limits (Instruction Tuned)
   ];
 
   constructor(apiKey: string) {
