@@ -11,10 +11,10 @@ export class GoogleProvider implements LLMProvider {
 
   async getReferences(mood: string): Promise<LLMResponse> {
     try {
-      // Use gemini-2.5-flash as found in the available models list
+      // Use gemini-2.0-flash which typically has higher rate limits than preview models
       // Increase temperature to 1.0 to encourage variety in verse selection
       const model = this.client.getGenerativeModel({
-          model: "gemini-2.5-flash",
+          model: "gemini-2.0-flash",
           generationConfig: {
             temperature: 1.0,
             topP: 0.95,
