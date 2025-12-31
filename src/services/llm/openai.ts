@@ -15,7 +15,7 @@ export class OpenAIProvider implements LLMProvider {
       Provide exactly 3 comforting or relevant Quran verses.
       Return ONLY a JSON array of objects with "surah" (number) and "ayah" (number).
       Do not include any explanation or markdown formatting.
-      Example: [{"surah": 2, "ayah": 153}, {"surah": 94, "ayah": 5}, {"surah": 13, "ayah": 28}]`;
+      Example: [{"surah": 1, "ayah": 5}, {"surah": 112, "ayah": 1}, {"surah": 36, "ayah": 58}]`;
 
       const completion = await this.client.chat.completions.create({
         messages: [{ role: "user", content: prompt }],
