@@ -10,7 +10,7 @@ interface VerseResponse {
   verse: {
     id: number;
     verse_key: string;
-    text_uthmani_simple: string;
+    text_uthmani: string;
     translations: Array<{
       id: number;
       resource_id: number;
@@ -46,7 +46,8 @@ function stripHtml(html: string): string {
  */
 export const fetchVerse = async (surah: number, ayah: number) => {
   try {
-    const url = `${QURAN_API_BASE}/verses/by_key/${surah}:${ayah}?language=en&fields=text_uthmani_simple&translations=${TRANSLATION_ENGLISH},${TRANSLATION_URDU}`;
+    // Switch to text_uthmani to show diacritical marks (Tashkeel)
+    const url = `${QURAN_API_BASE}/verses/by_key/${surah}:${ayah}?language=en&fields=text_uthmani&translations=${TRANSLATION_ENGLISH},${TRANSLATION_URDU}`;
     console.log(`Fetching Verse: ${url}`);
 
     const res = await fetch(url, {
@@ -72,7 +73,7 @@ export const fetchVerse = async (surah: number, ayah: number) => {
 
     return {
       key: verse.verse_key,
-      arabic: verse.text_uthmani_simple, // Use simple Uthmani for better web rendering
+      arabic: verse.text_uthmani, // Use full Uthmani script with diacritics
       english,
       urdu,
       raw: verse
