@@ -15,20 +15,26 @@ export interface MoodContent {
   urdu: string;
 }
 
+export interface MoodResponse {
+  message: string;
+  verses: MoodContent[];
+}
+
 /**
  * Server Action to get content based on mood.
  * 1. Calls LLM to get references.
  * 2. Fetches verses in parallel.
  */
-export async function getMoodContent(mood: string): Promise<MoodContent[]> {
+export async function getMoodContent(mood: string): Promise<MoodResponse> {
   console.log(`[Server Action] getMoodContent called for mood: ${mood}`);
 
   try {
-    const references = await getQuranReferences(mood);
+    const llmResponse = await getQuranReferences(mood);
+    const { message, references } = llmResponse;
 
     if (!references || references.length === 0) {
         console.warn("[Server Action] No references returned from LLM.");
-        return [];
+        return { message: "I couldn't find specific verses right now, but I am here for you.", verses: [] };
     }
 
     // Fetch all verses in parallel
@@ -46,13 +52,13 @@ export async function getMoodContent(mood: string): Promise<MoodContent[]> {
         };
     });
 
-    const verses = await Promise.all(versePromises);
+    const versesRaw = await Promise.all(versePromises);
 
     // Filter out any failed fetches (nulls) and return valid content
-    const validVerses = verses.filter((v): v is MoodContent => v !== null);
+    const verses = versesRaw.filter((v): v is MoodContent => v !== null);
 
-    console.log(`[Server Action] Returning ${validVerses.length} verses.`);
-    return validVerses;
+    console.log(`[Server Action] Returning ${verses.length} verses.`);
+    return { message, verses };
 
   } catch (error: any) {
     console.error("[Server Action] Error in getMoodContent:", error);

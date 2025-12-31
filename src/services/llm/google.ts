@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { LLMProvider, QuranReference } from './types';
+import { LLMProvider, LLMResponse } from './types';
 
 export class GoogleProvider implements LLMProvider {
   name = 'Google Gemini';
@@ -9,7 +9,7 @@ export class GoogleProvider implements LLMProvider {
     this.client = new GoogleGenerativeAI(apiKey);
   }
 
-  async getReferences(mood: string): Promise<QuranReference[]> {
+  async getReferences(mood: string): Promise<LLMResponse> {
     try {
       // Use gemini-2.5-flash as found in the available models list
       // Increase temperature to 1.0 to encourage variety in verse selection
@@ -25,24 +25,35 @@ export class GoogleProvider implements LLMProvider {
       const aspects = ["patience", "mercy", "strength", "hope", "forgiveness", "nature", "history", "prayer"];
       const randomAspect = aspects[Math.floor(Math.random() * aspects.length)];
 
-      const prompt = `You are a helpful Islamic assistant. A user is feeling "${mood}".
-      Provide exactly 3 comforting or relevant Quran verses.
+      const prompt = `You are a compassionate spiritual companion. A user is feeling "${mood}".
+
+      1. Write a short, comforting, and empathetic message (2-3 sentences) addressing the user directly ("You"). Speak as a kind friend.
+      2. Select exactly 3 comforting or relevant Quran verses.
 
       IMPORTANT: Try to be diverse. Do not always choose the most common verses.
       Consider verses related to: ${randomAspect}.
 
-      Return ONLY a JSON array of objects with "surah" (number) and "ayah" (number).
-      Do not include any explanation or markdown formatting.
-      Example: [{"surah": 1, "ayah": 5}, {"surah": 112, "ayah": 1}, {"surah": 36, "ayah": 58}]`;
+      Return ONLY a JSON object with the following structure:
+      {
+        "message": "Your comforting message here...",
+        "references": [{"surah": number, "ayah": number}, ...]
+      }
+
+      Do not include any markdown formatting like \`\`\`json. Just the raw JSON string.
+      Example:
+      {
+        "message": "I know it feels heavy right now, but remember that ease follows hardship. Take a deep breath and trust in Allah's plan.",
+        "references": [{"surah": 94, "ayah": 5}, {"surah": 2, "ayah": 286}, {"surah": 13, "ayah": 28}]
+      }`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
 
-      if (!text) return [];
+      if (!text) return { message: "I couldn't generate a response.", references: [] };
 
       const cleanedContent = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(cleanedContent) as QuranReference[];
+      return JSON.parse(cleanedContent) as LLMResponse;
     } catch (error: any) {
       console.error("Google Gemini Provider Error:", error);
       // Log more details if available

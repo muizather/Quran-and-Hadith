@@ -27,14 +27,12 @@ export function ChatInterface() {
     try {
       // Reuse the mood content logic for now as it does exactly what we need:
       // Takes a string (feeling/input) -> gets verses -> returns them.
-      const verses = await getMoodContent(userMessage);
+      const response = await getMoodContent(userMessage);
 
       const assistantMessage: Message = {
         role: 'assistant',
-        content: verses.length > 0
-          ? "Here are some verses from the Quran that might bring you comfort and guidance:"
-          : "I couldn't find specific verses for that right now, but remember Allah is always near.",
-        verses: verses
+        content: response.message || "Here are some verses from the Quran for you:",
+        verses: response.verses
       };
 
       setMessages(prev => [...prev, assistantMessage]);

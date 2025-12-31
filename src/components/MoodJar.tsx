@@ -16,6 +16,7 @@ const MOODS = [
 export function MoodJar() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [content, setContent] = useState<MoodContent[]>([]);
+  const [assistantMessage, setAssistantMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,9 +25,11 @@ export function MoodJar() {
     setLoading(true);
     setError(null);
     setContent([]);
+    setAssistantMessage(null);
     try {
       const data = await getMoodContent(mood);
-      setContent(data);
+      setContent(data.verses);
+      setAssistantMessage(data.message);
     } catch (err: any) {
       console.error("Failed to fetch mood content", err);
       setError(err.message || "Something went wrong. Please try again.");
@@ -69,6 +72,14 @@ export function MoodJar() {
 
         {!loading && !error && content.length > 0 && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {assistantMessage && (
+              <div className="mb-8 p-6 bg-teal-50 border border-teal-100 rounded-xl">
+                 <p className="text-lg text-teal-800 leading-relaxed font-medium">
+                   "{assistantMessage}"
+                 </p>
+              </div>
+            )}
+
             <h3 className="text-xl font-semibold mb-4">Verses for {selectedMood}</h3>
             <div className="grid gap-6">
               {content.map((item) => (
