@@ -44,7 +44,9 @@ export async function getQuranReferences(mood: string): Promise<LLMResponse> {
         console.log("Using Fallback data after error.");
         return fallback;
     }
-    // Return empty if everything fails
-    return { message: "I am having trouble connecting right now, but please know you are supported.", references: [] };
+    // If all models fail and no fallback is found, return a friendly error message
+    // The previous implementation returned "trouble connecting" which is good.
+    // We will keep it but maybe improve the message.
+    return { message: "Service is currently busy. Please try again in a few moments or try a different feeling.", references: [] };
   }
 }
