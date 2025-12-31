@@ -2,6 +2,9 @@ import { MoodJar } from "@/components/MoodJar";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 
+// Allow longer timeout for AI generation
+export const maxDuration = 60;
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 py-12">

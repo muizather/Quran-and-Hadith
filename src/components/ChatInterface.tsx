@@ -38,9 +38,10 @@ export function ChatInterface() {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I encountered an error. Please try again." }]);
+      const errorMessage = error.message || "Sorry, I encountered an error. Please try again.";
+      setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${errorMessage}` }]);
     } finally {
       setLoading(false);
     }

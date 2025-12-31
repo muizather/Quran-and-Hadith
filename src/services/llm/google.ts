@@ -1,0 +1,40 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { LLMProvider, QuranReference } from './types';
+
+export class GoogleProvider implements LLMProvider {
+  name = 'Google Gemini';
+  private client: GoogleGenerativeAI;
+
+  constructor(apiKey: string) {
+    this.client = new GoogleGenerativeAI(apiKey);
+  }
+
+  async getReferences(mood: string): Promise<QuranReference[]> {
+    try {
+      // Use gemini-2.5-flash as found in the available models list
+      const model = this.client.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+      const prompt = `You are a helpful Islamic assistant. A user is feeling "${mood}".
+      Provide exactly 3 comforting or relevant Quran verses.
+      Return ONLY a JSON array of objects with "surah" (number) and "ayah" (number).
+      Do not include any explanation or markdown formatting.
+      Example: [{"surah": 2, "ayah": 153}, {"surah": 94, "ayah": 5}, {"surah": 13, "ayah": 28}]`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+
+      if (!text) return [];
+
+      const cleanedContent = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(cleanedContent) as QuranReference[];
+    } catch (error: any) {
+      console.error("Google Gemini Provider Error:", error);
+      // Log more details if available
+      if (error.response) {
+         console.error("Gemini Response Error:", JSON.stringify(error.response, null, 2));
+      }
+      throw error; // Rethrow to let the factory/caller handle or log
+    }
+  }
+}
